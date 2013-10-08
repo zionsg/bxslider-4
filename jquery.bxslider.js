@@ -7,8 +7,7 @@
  *
  * Released under the WTFPL license - http://sam.zoy.org/wtfpl/
  *
- * @see https://github.com/zionsg/bxslider-4/blob/master/jquery.bxslider.js for source
- * @see https://github.com/zionsg/bxslider-4/blob/master/changelog.zionsg.md for modifications
+ * @see https://github.com/zionsg/bxslider-4/blob/master/jquery.bxslider.js for source and changes from original
  */
 
 ;(function($){
