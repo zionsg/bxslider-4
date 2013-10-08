@@ -1,4 +1,6 @@
 #bxSlider 4.1.1
+Forked by: Zion Ng - https://github.com/zionsg/bxslider-4
+
 ##The fully-loaded, responsive jQuery content slider
 
 ###Why should I use this slider?
@@ -17,7 +19,7 @@ For complete documentation, tons of examples, and a good time, visit:
 Written by: Steven Wanderski - [http://stevenwanderski.com](http://stevenwanderski.com)
 
 ###License
-Released under the MIT license - http://opensource.org/licenses/MIT
+Released under the WTFPL license - http://sam.zoy.org/wtfpl/
 
 Let's get on with it!
 
@@ -471,6 +473,56 @@ arguments:
 
 ###Public methods
 
+**tickerStart**
+_(added by zionsg)_
+Start ticker. `useCSS` must be set to false for this to work.
+```
+example:
+slider = $('.bxslider').bxSlider({
+  ticker: true,
+  useCSS: false
+});
+slider.tickerStart();
+```
+
+**tickerStop**
+_(added by zionsg)_
+Stop ticker. `useCSS` must be set to false for this to work.
+```
+example:
+slider = $('.bxslider').bxSlider({
+  ticker: true,
+  useCSS: false
+});
+slider.tickerStop();
+```
+
+**tickerPrevSlide**
+_(added by zionsg)_
+Transitions to the prev slide in the ticker. `useCSS` must be set to false for this to work. Ticker must be stopped first.
+```
+example:
+slider = $('.bxslider').bxSlider({
+  ticker: true,
+  useCSS: false
+});
+slider.tickerStop();
+slider.tickerPrevSlide();
+```
+
+**tickerNextSlide**
+_(added by zionsg)_
+Transitions to the next slide in the ticker. `useCSS` must be set to false for this to work. Ticker must be stopped first.
+```
+example:
+slider = $('.bxslider').bxSlider({
+  ticker: true,
+  useCSS: false
+});
+slider.tickerStop();
+slider.tickerNextSlide();
+```
+
 **goToSlide**
 Performs a slide transition to the supplied slide index (zero-based)
 ```
@@ -544,6 +596,10 @@ slider.destroySlider();
 ```
 
 ## Changelog
+
+### Version 4.1.1-zionsg (forked version)
+* Added public functions tickerStart and tickerStop
+* Added public functions tickerPrevSlide and tickerNextSlide
 
 ### Version 4.1.1
 * Removed imagesLoaded library and added iframe preloading support
