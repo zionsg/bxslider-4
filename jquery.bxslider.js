@@ -2,10 +2,13 @@
  * BxSlider v4.1.1 - Fully loaded, responsive content slider
  * http://bxslider.com
  *
- * Copyright 2013, Steven Wanderski - http://stevenwanderski.com - http://bxcreative.com
+ * Copyright 2012, Steven Wanderski - http://stevenwanderski.com - http://bxcreative.com
  * Written while drinking Belgian ales and listening to jazz
  *
- * Released under the MIT license - http://opensource.org/licenses/MIT
+ * Released under the WTFPL license - http://sam.zoy.org/wtfpl/
+ *
+ * @see https://github.com/zionsg/bxslider-4/blob/master/jquery.bxslider.js for source
+ * @see https://github.com/zionsg/bxslider-4/blob/master/changelog.zionsg.md for modifications
  */
 
 ;(function($){
@@ -272,10 +275,11 @@
 			}
 			var count = 0;
 			selector.find('img, iframe').each(function(){
-				$(this).one('load', function() {
-				  if(++count == total) callback();
-				}).each(function() {
-				  if(this.complete) $(this).load();
+				if($(this).is('img')) $(this).attr('src', $(this).attr('src') + '?timestamp=' + new Date().getTime());
+				$(this).load(function(){
+					setTimeout(function(){
+						if(++count == total) callback();
+					}, 0)
 				});
 			});
 		}
@@ -1082,6 +1086,31 @@
 		 * = PUBLIC FUNCTIONS
 		 * ===================================================================================
 		 */
+
+        /**
+         * Starts ticker
+         */
+        el.tickerStart = function() {
+            // calculate the total width of children (used to calculate the speed ratio)
+            var totalDimens = 0;
+            slider.children.each(function(index){
+              totalDimens += slider.settings.mode == 'horizontal' ? $(this).outerWidth(true) : $(this).outerHeight(true);
+            });
+            // calculate the speed ratio (used to determine the new speed to finish the paused animation)
+            var ratio = slider.settings.speed / totalDimens;
+            // determine which property to use
+            var property = slider.settings.mode == 'horizontal' ? 'left' : 'top';
+            // calculate the new speed
+            var newSpeed = ratio * (totalDimens - (Math.abs(parseInt(el.css(property)))));
+            tickerLoop(newSpeed);
+        }
+
+        /**
+         * Stops ticker
+         */
+        el.tickerStop = function() {
+            el.stop();
+        }
 
 		/**
 		 * Performs slide transition to the specified slide
