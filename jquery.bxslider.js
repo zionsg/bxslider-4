@@ -1088,6 +1088,8 @@
 
         /**
          * Starts ticker
+         *
+         * This functionality does not work if using CSS transitions. 'useCSS' must be set to false.
          */
         el.tickerStart = function() {
             // calculate the total width of children (used to calculate the speed ratio)
@@ -1106,10 +1108,44 @@
 
         /**
          * Stops ticker
+         *
+         * This functionality does not work if using CSS transitions. 'useCSS' must be set to false.
          */
         el.tickerStop = function() {
             el.stop();
         }
+
+        /**
+         * Transitions to the prev slide in the ticker
+         *
+         * This functionality does not work if using CSS transitions. 'useCSS' must be set to false.
+         */
+		el.tickerPrevSlide = function(){
+            var totalDimens = 0;
+            slider.children.each(function(index){
+                totalDimens += slider.settings.mode == 'horizontal' ? $(this).outerWidth(true) : $(this).outerHeight(true);
+            });
+            var dimens = totalDimens / el.getSlideCount();
+            var position = parseInt(slider.settings.mode == 'horizontal' ? el.css('left') : el.css('top'));
+            var prevSlidePosition = (Math.floor(position / dimens) * dimens) + dimens;
+            setPositionProperty(prevSlidePosition, 'reset', 0);
+		}
+
+        /**
+         * Transitions to the next slide in the ticker
+         *
+         * This functionality does not work if using CSS transitions. 'useCSS' must be set to false.
+         */
+		el.tickerNextSlide = function(){
+            var totalDimens = 0;
+            slider.children.each(function(index){
+                totalDimens += slider.settings.mode == 'horizontal' ? $(this).outerWidth(true) : $(this).outerHeight(true);
+            });
+            var dimens = totalDimens / el.getSlideCount();
+            var position = parseInt(slider.settings.mode == 'horizontal' ? el.css('left') : el.css('top'));
+            var nextSlidePosition = (Math.ceil(position / dimens) * dimens) - dimens;
+            setPositionProperty(nextSlidePosition, 'reset', 0);
+		}
 
 		/**
 		 * Performs slide transition to the specified slide
