@@ -1186,7 +1186,6 @@
          */
         el.tickerNextSlide = function(){
             var totalDimens = 0,
-                stopFlag = false,
                 currPosition = Math.abs(parseInt(slider.settings.mode == 'horizontal' ? el.css('left') : el.css('top')));
 
             slider.children.each(function(index){
