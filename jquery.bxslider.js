@@ -223,7 +223,14 @@
 				position: 'relative'
 			});
 			// apply the calculated width after the float is applied to prevent scrollbar interference
-			slider.children.css('width', getSlideWidth());
+            if (!slider.settings.ticker) {
+                slider.children.css('width', getSlideWidth());
+            } else {
+                // slide width for ticker mode is different for each slide depending on the length of its text
+                slider.children.each(function() {
+                    $(this).css('width', calcTextWidth($(this)));
+                });
+            }
 			// if slideMargin is supplied, add the css
 			if(slider.settings.mode == 'horizontal' && slider.settings.slideMargin > 0) slider.children.css('marginRight', slider.settings.slideMargin);
 			if(slider.settings.mode == 'vertical' && slider.settings.slideMargin > 0) slider.children.css('marginBottom', slider.settings.slideMargin);
@@ -397,7 +404,7 @@
 			if(slider.settings.slideWidth == 0 ||
 				(slider.settings.slideWidth > wrapWidth && !slider.carousel) ||
 				slider.settings.mode == 'vertical'){
-				newElWidth = wrapWidth;
+                newElWidth = wrapWidth;
 			// if carousel, use the thresholds to determine the width
 			}else if(slider.settings.maxSlides > 1 && slider.settings.mode == 'horizontal'){
 				if(wrapWidth > slider.maxThreshold){
@@ -909,7 +916,9 @@
 					// calculate the total width of children (used to calculate the speed ratio)
 					var totalDimens = 0;
 					slider.children.each(function(index){
-					  totalDimens += slider.settings.mode == 'horizontal' ? $(this).outerWidth(true) : $(this).outerHeight(true);
+                        totalDimens += slider.settings.mode == 'horizontal'
+                                     ? calcTextWidth($(this))
+                                     : calcTextHeight($(this));
 					});
 					// calculate the speed ratio (used to determine the new speed to finish the paused animation)
 					var ratio = slider.settings.speed / totalDimens;
@@ -1079,6 +1088,36 @@
 			}
 		}
 
+        /**
+         * Calculate width of HTML text in element
+         *
+         * @param  DOMElement $element
+         * @return int|float
+         */
+        var calcTextWidth = function($element) {
+            var width = 0,
+                fakeElement = $('<span style="display:none;">' + $element.html() + '</span>');
+            fakeElement.appendTo('body');
+            width = fakeElement.width();
+            fakeElement.remove();
+            return width;
+        };
+
+        /**
+         * Calculate height of HTML text in element
+         *
+         * @param  DOMElement $element
+         * @return int|float
+         */
+        var calcTextHeight = function($element) {
+            var height = 0,
+                fakeElement = $('<span style="display:none;">' + $element.html() + '</span>');
+            fakeElement.appendTo('body');
+            height = fakeElement.height();
+            fakeElement.remove();
+            return height;
+        };
+
 		/**
 		 * ===================================================================================
 		 * = PUBLIC FUNCTIONS
@@ -1094,7 +1133,9 @@
             // calculate the total width of children (used to calculate the speed ratio)
             var totalDimens = 0;
             slider.children.each(function(index){
-              totalDimens += slider.settings.mode == 'horizontal' ? $(this).outerWidth(true) : $(this).outerHeight(true);
+                totalDimens += slider.settings.mode == 'horizontal'
+                             ? calcTextWidth($(this))
+                             : calcTextHeight($(this));
             });
             // calculate the speed ratio (used to determine the new speed to finish the paused animation)
             var ratio = slider.settings.speed / totalDimens;
@@ -1120,14 +1161,22 @@
          * This functionality does not work if using CSS transitions. 'useCSS' must be set to false.
          */
 		el.tickerPrevSlide = function(){
-            var totalDimens = 0;
+            var totalDimens = 0,
+                prevPosition = 0,
+                prevPrevPosition = 0,
+                currPosition = Math.abs(parseInt(slider.settings.mode == 'horizontal' ? el.css('left') : el.css('top')));
+
             slider.children.each(function(index){
-                totalDimens += slider.settings.mode == 'horizontal' ? $(this).outerWidth(true) : $(this).outerHeight(true);
+                prevPrevPosition = prevPosition;
+                prevPosition = totalDimens;
+                totalDimens += slider.settings.mode == 'horizontal'
+                             ? calcTextWidth($(this))
+                             : calcTextHeight($(this));
+                if (totalDimens > currPosition) {
+                    return false; // break loop
+                }
             });
-            var dimens = totalDimens / el.getSlideCount();
-            var position = parseInt(slider.settings.mode == 'horizontal' ? el.css('left') : el.css('top'));
-            var prevSlidePosition = (Math.floor(position / dimens) * dimens) + dimens;
-            setPositionProperty(prevSlidePosition, 'reset', 0);
+            setPositionProperty(-prevPrevPosition, 'reset', 0);
 		}
 
         /**
@@ -1136,14 +1185,19 @@
          * This functionality does not work if using CSS transitions. 'useCSS' must be set to false.
          */
 		el.tickerNextSlide = function(){
-            var totalDimens = 0;
+            var totalDimens = 0,
+                stopFlag = false,
+                currPosition = Math.abs(parseInt(slider.settings.mode == 'horizontal' ? el.css('left') : el.css('top')));
+
             slider.children.each(function(index){
-                totalDimens += slider.settings.mode == 'horizontal' ? $(this).outerWidth(true) : $(this).outerHeight(true);
+                totalDimens += slider.settings.mode == 'horizontal'
+                             ? calcTextWidth($(this))
+                             : calcTextHeight($(this));
+                if (totalDimens > currPosition) {
+                    return false;
+                }
             });
-            var dimens = totalDimens / el.getSlideCount();
-            var position = parseInt(slider.settings.mode == 'horizontal' ? el.css('left') : el.css('top'));
-            var nextSlidePosition = (Math.ceil(position / dimens) * dimens) - dimens;
-            setPositionProperty(nextSlidePosition, 'reset', 0);
+            setPositionProperty(-totalDimens, 'reset', 0);
 		}
 
 		/**
@@ -1320,7 +1374,15 @@
 		 */
 		el.redrawSlider = function(){
 			// resize all children in ratio to new screen size
-			slider.children.add(el.find('.bx-clone')).outerWidth(getSlideWidth());
+            if (!slider.settings.ticker) {
+                slider.children.add(el.find('.bx-clone')).outerWidth(getSlideWidth());
+            } else {
+                // slide width for ticker mode is different for each slide depending on the length of its text
+                slider.children.each(function() {
+                    $(this).add(el.find('.bx-clone'));
+                    $(this).outerWidth(calcTextWidth($(this)));
+                });
+            }
 			// adjust the height
 			slider.viewport.css('height', getViewportHeight());
 			// update the slide position
