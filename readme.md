@@ -1,4 +1,4 @@
-#bxSlider 4.1.1
+# bxSlider 4.1.1
 Forked by: Zion Ng - https://github.com/zionsg/bxslider-4
 
 ##The fully-loaded, responsive jQuery content slider
